@@ -18,9 +18,22 @@ class BookController extends AbstractController
         $bookList = $bookRepository->findAll();
 
         //sérialiser la liste des livres en format JSON
-        $jsonBookList = $serializer->serialize(data: $bookList,format: 'json');
+        $jsonBookList = $serializer->serialize(data: $bookList,format: 'json',context: ['groups' => 'getBooks']);
         
         //retourner la liste des livres en format JSON
         return new JsonResponse(data: $jsonBookList, status: Response::HTTP_OK, headers: [], json: true);
+    }
+
+    #[Route(path: '/api/books/{id}', name: 'detailBook', methods: ['GET'])]
+    public function getDetailBook(int $id, SerializerInterface $serializer,BookRepository $bookRepository):JsonResponse{
+        //récupérer le livre par son id
+        $book = $bookRepository->find(id: $id);
+        if ($book){
+            $jsonBook = $serializer->serialize(data: $book,format: 'json',context: ['groups' => 'getBooks']);
+            return new JsonResponse(data: $jsonBook, status: Response::HTTP_OK,headers:[],json: true);
+        }
+
+
+        return new JsonResponse(null, Response::HTTP_NOT_FOUND);
     }
 }
